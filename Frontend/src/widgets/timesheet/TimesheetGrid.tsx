@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import type { ColDef } from 'ag-grid-community';
+import { CellStyleModule } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 import type { TimeEntryView } from '../../entities/time-entry/types';
@@ -103,6 +104,8 @@ export function TimesheetGrid({ entries, loading, onEdit, onDelete }: TimesheetG
         rowData={entries}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
+        modules={[CellStyleModule]}
+        theme="legacy"
         pagination={false}
         domLayout="normal"
         rowHeight={38}

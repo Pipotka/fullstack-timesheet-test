@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import type { ColDef } from 'ag-grid-community';
+import { CellStyleModule, RowStyleModule } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 import type { ProjectReportRow } from '../../entities/report/types';
@@ -125,6 +126,8 @@ export function ProjectReportGrid({
         rowData={allRows}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
+        modules={[CellStyleModule, RowStyleModule]}
+        theme="legacy"
         pagination={false}
         domLayout="normal"
         rowHeight={38}
