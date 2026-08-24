@@ -438,23 +438,65 @@ public readonly record struct DateRange(DateOnly From, DateOnly To);
 - `totalHours` и `totalCost` — итоги по всем записям, подходящим под фильтры (не только по текущей странице);
 - DB-side aggregation для подсчёта итогов.
 
-### 5.2. Projects
+### 5.2. Employees
 
-#### GET `/api/projects/{id}/report` — отчёт по проекту
+#### GET `/api/employees` — список сотрудников
 
 **Response (200 OK):**
 ```json
-{
-  "projectId": "proj-001",
-  "projectCode": "PRJ-001",
-  "projectName": "Проект 1",
-  "budget": 2000000.00,
-  "totalHours": 1200.5,
-  "totalCost": 1800750.00,
-  "utilizationPercent": 90.04,
-  "isAtRisk": false,
-  "isOverrun": false
-}
+[
+  {
+    "id": "emp-001",
+    "fullName": "Иванов Иван Иванович",
+    "currentRate": 1500.00
+  }
+]
+```
+
+**Логика:**
+- возвращает всех сотрудников с текущей ставкой (последняя запись в `RateHistory`).
+
+### 5.3. Projects
+
+#### GET `/api/projects` — список проектов
+
+**Response (200 OK):**
+```json
+[
+  {
+    "id": "proj-001",
+    "code": "PRJ-001",
+    "name": "Проект 1",
+    "budget": 2000000.00,
+    "startDate": "2026-01-01",
+    "endDate": "2026-12-31"
+  }
+]
+```
+
+### 5.4. Reports
+
+#### GET `/api/reports/projects?year=&month=` — отчёты по проектам за период
+
+**Query parameters:**
+- `year` (required, integer);
+- `month` (required, integer, 1–12).
+
+**Response (200 OK):**
+```json
+[
+  {
+    "projectId": "proj-001",
+    "projectCode": "PRJ-001",
+    "projectName": "Проект 1",
+    "budget": 2000000.00,
+    "totalHours": 1200.5,
+    "totalCost": 1800750.00,
+    "utilizationPercent": 90.04,
+    "isAtRisk": false,
+    "isOverrun": false
+  }
+]
 ```
 
 **Логика:**
@@ -464,9 +506,9 @@ public readonly record struct DateRange(DateOnly From, DateOnly To);
 - `isOverrun = utilizationPercent > 100`;
 - DB-side aggregation для `totalHours` и `totalCost`.
 
-### 5.3. PeriodClosures
+### 5.5. Periods
 
-#### POST `/api/period-closures/close` — закрыть период
+#### POST `/api/periods/close` — закрыть период
 
 **Request:**
 ```json
@@ -488,7 +530,7 @@ public readonly record struct DateRange(DateOnly From, DateOnly To);
 **Логика:**
 - идемпотентно: повторное закрытие не является ошибкой.
 
-#### POST `/api/period-closures/open` — открыть период
+#### POST `/api/periods/open` — открыть период
 
 **Request:**
 ```json
@@ -510,13 +552,15 @@ public readonly record struct DateRange(DateOnly From, DateOnly To);
 **Логика:**
 - идемпотентно: повторное открытие не является ошибкой.
 
-### 5.4. Данные для будущего UI
+### 5.6. Данные для будущего UI
 
 API возвращает все данные, необходимые для интерфейса:
 - **Список записей:** `id`, `employeeName`, `projectCode`, `date`, `hours`, `comment`, `appliedRate`, `cost`, `isOvertime`;
 - **Пагинация:** `totalCount`, `page`, `pageSize`;
 - **Итоги:** `totalHours`, `totalCost`;
-- **Отчёт по проекту:** `utilizationPercent`, `isAtRisk`, `isOverrun`;
+- **Список сотрудников:** `id`, `fullName`, `currentRate`;
+- **Список проектов:** `id`, `code`, `name`, `budget`, `startDate`, `endDate`;
+- **Отчёты по проектам:** `projectId`, `projectCode`, `projectName`, `budget`, `totalHours`, `totalCost`, `utilizationPercent`, `isAtRisk`, `isOverrun`;
 - **Ошибки:** `{ code, message }` на русском языке.
 
 ---
@@ -555,13 +599,15 @@ public interface ITimeEntryRepository
 public interface IEmployeeRepository
 {
     Task<Employee?> GetByIdAsync(EmployeeId id, CancellationToken ct);
+    Task<IReadOnlyList<Employee>> ListAsync(CancellationToken ct);
     Task<long> ChangeRateAsync(EmployeeId id, DateOnly fromDate, decimal newRate, CancellationToken ct);
 }
 
 public interface IProjectRepository
 {
     Task<Project?> GetByIdAsync(ProjectId id, CancellationToken ct);
-    Task<ProjectReport> GetReportAsync(ProjectId id, CancellationToken ct);
+    Task<IReadOnlyList<Project>> ListAsync(CancellationToken ct);
+    Task<IReadOnlyList<ProjectReportResult>> GetReportsByPeriodAsync(int year, int month, CancellationToken ct);
 }
 
 public interface IPeriodClosureRepository
@@ -1001,7 +1047,7 @@ volumes:
 - [ ] API документирован через Swagger;
 - [ ] Docker Compose для standalone MongoDB;
 - [ ] README с инструкциями по запуску и обслуживанию;
-- [ ] нет незаполненных разделов и placeholders в коде и документации;
+- [ ] нет незаполненных разделов, временных заглушек и противоречий в коде и документации;
 - [ ] ошибки возвращаются в формате `{ code, message }` на русском языке.
 
 ### 17.3. Ограничения
