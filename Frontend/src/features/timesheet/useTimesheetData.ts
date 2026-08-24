@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { TimeEntryView } from '../../entities/time-entry/types';
 import type { TimeEntryFilters, TimeEntryTotals } from '../../shared/api/contracts';
@@ -50,6 +50,21 @@ export function useTimesheetData(): UseTimesheetDataResult {
     () => parseTimesheetQuery(searchParams, defaults, knownEmployeeIds, knownProjectIds),
     [searchParams, defaults, knownEmployeeIds, knownProjectIds],
   );
+
+  // Канонизация URL: если в URL есть невалидные значения, нормализуем их
+  useEffect(() => {
+    const canonical = serializeTimesheetQuery(query, defaults);
+    const merged = replaceKnownParams(searchParams, TIMESHEET_QUERY_KEYS, canonical);
+
+    // Сравниваем только known keys между текущим URL и канонической формой
+    const currentKnownValues = TIMESHEET_QUERY_KEYS.map((key) => searchParams.get(key)).join('|');
+    const canonicalKnownValues = TIMESHEET_QUERY_KEYS.map((key) => merged.get(key)).join('|');
+
+    // Если known params отличаются, обновляем URL через replace
+    if (currentKnownValues !== canonicalKnownValues) {
+      setSearchParams(merged, { replace: true });
+    }
+  }, [searchParams, query, defaults, setSearchParams]);
 
   const pageSize = 10;
   const [error] = useState<ApiError | null>(null);

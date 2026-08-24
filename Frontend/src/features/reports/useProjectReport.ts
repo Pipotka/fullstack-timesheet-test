@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { ProjectReport } from '../../entities/report/types';
 import { useRepositories } from '../../app/providers/useRepositories';
@@ -36,6 +36,21 @@ export function useProjectReport(): UseProjectReportResult {
     () => parseReportQuery(searchParams, defaults),
     [searchParams, defaults],
   );
+
+  // Канонизация URL: если в URL есть невалидные значения, нормализуем их
+  useEffect(() => {
+    const canonical = serializeReportQuery(query, defaults);
+    const merged = replaceKnownParams(searchParams, REPORT_QUERY_KEYS, canonical);
+
+    // Сравниваем только known keys между текущим URL и канонической формой
+    const currentKnownValues = REPORT_QUERY_KEYS.map((key) => searchParams.get(key)).join('|');
+    const canonicalKnownValues = REPORT_QUERY_KEYS.map((key) => merged.get(key)).join('|');
+
+    // Если known params отличаются, обновляем URL через replace
+    if (currentKnownValues !== canonicalKnownValues) {
+      setSearchParams(merged, { replace: true });
+    }
+  }, [searchParams, query, defaults, setSearchParams]);
 
   // Счётчик ревизий для пересчёта после мутаций
   const [, setRevision] = useState(0);

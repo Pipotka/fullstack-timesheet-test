@@ -417,6 +417,85 @@ console.log('\n── Roundtrip ──');
   assertDeepEqual(parsed, q, 'defaults roundtrip: serialize → empty → parse → defaults');
 }
 
+// ─── Canonical URL normalization ─────────────────────────────────────────────
+
+console.log('\n── Canonical URL normalization ──');
+
+// Invalid params should canonicalize to valid form
+{
+  const invalid = new URLSearchParams('year=12abc&month=13&employeeId=unknown&projectId=unknown&page=0');
+  const parsed = parseTimesheetQuery(invalid, DEFAULTS, KNOWN_EMPLOYEES, KNOWN_PROJECTS);
+  const canonical = serializeTimesheetQuery(parsed, DEFAULTS);
+  const merged = replaceKnownParams(invalid, TIMESHEET_QUERY_KEYS, canonical);
+
+  // After canonicalization, all known params should be valid
+  const reparsed = parseTimesheetQuery(merged, DEFAULTS, KNOWN_EMPLOYEES, KNOWN_PROJECTS);
+  assertDeepEqual(reparsed, parsed, 'canonical: invalid params normalize to valid state');
+
+  // Unknown keys should be preserved (none in this case)
+  assert(merged.get('unknownKey') === null, 'canonical: no unknown keys in this test');
+}
+
+// Invalid params with unknown keys preserved
+{
+  const invalid = new URLSearchParams('year=12abc&month=13&foo=bar&baz=qux');
+  const parsed = parseTimesheetQuery(invalid, DEFAULTS, KNOWN_EMPLOYEES, KNOWN_PROJECTS);
+  const canonical = serializeTimesheetQuery(parsed, DEFAULTS);
+  const merged = replaceKnownParams(invalid, TIMESHEET_QUERY_KEYS, canonical);
+
+  // Unknown keys preserved
+  assert(merged.get('foo') === 'bar', 'canonical: unknown key "foo" preserved');
+  assert(merged.get('baz') === 'qux', 'canonical: unknown key "baz" preserved');
+
+  // Known params normalized
+  const reparsed = parseTimesheetQuery(merged, DEFAULTS, KNOWN_EMPLOYEES, KNOWN_PROJECTS);
+  assertDeepEqual(reparsed, parsed, 'canonical: known params normalized with unknown keys preserved');
+}
+
+// Valid params should not change after canonicalization
+{
+  const valid = new URLSearchParams('year=2025&month=6&employeeId=emp-1&projectId=proj-2&page=3');
+  const parsed = parseTimesheetQuery(valid, DEFAULTS, KNOWN_EMPLOYEES, KNOWN_PROJECTS);
+  const canonical = serializeTimesheetQuery(parsed, DEFAULTS);
+  const merged = replaceKnownParams(valid, TIMESHEET_QUERY_KEYS, canonical);
+
+  // Should be identical
+  assert(merged.toString() === valid.toString(), 'canonical: valid params unchanged');
+}
+
+// Defaults should canonicalize to empty query string
+{
+  const defaults = new URLSearchParams('year=2026&month=3&page=1');
+  const parsed = parseTimesheetQuery(defaults, DEFAULTS, KNOWN_EMPLOYEES, KNOWN_PROJECTS);
+  const canonical = serializeTimesheetQuery(parsed, DEFAULTS);
+  const merged = replaceKnownParams(defaults, TIMESHEET_QUERY_KEYS, canonical);
+
+  // Should be empty (all defaults)
+  assert(merged.toString() === '', 'canonical: defaults → empty query string');
+}
+
+// Report canonical: invalid params normalize
+{
+  const invalid = new URLSearchParams('year=12abc&month=13');
+  const parsed = parseReportQuery(invalid, DEFAULTS);
+  const canonical = serializeReportQuery(parsed, DEFAULTS);
+  const merged = replaceKnownParams(invalid, REPORT_QUERY_KEYS, canonical);
+
+  // Should be empty (defaults)
+  assert(merged.toString() === '', 'canonical report: invalid → defaults → empty');
+}
+
+// Report canonical: unknown keys preserved
+{
+  const invalid = new URLSearchParams('year=12abc&extra=data');
+  const parsed = parseReportQuery(invalid, DEFAULTS);
+  const canonical = serializeReportQuery(parsed, DEFAULTS);
+  const merged = replaceKnownParams(invalid, REPORT_QUERY_KEYS, canonical);
+
+  assert(merged.get('extra') === 'data', 'canonical report: unknown key preserved');
+  assert(merged.toString() === 'extra=data', 'canonical report: only unknown key remains');
+}
+
 // ─── Итог ────────────────────────────────────────────────────────────────────
 
 console.log(`\nИтого: ${passed} пройдено, ${failed} провалено из ${passed + failed}`);
