@@ -1,3 +1,5 @@
+using Timesheet.Domain.Common;
+
 namespace Timesheet.Domain.TimeEntries;
 
 public sealed class TimeEntry
@@ -21,16 +23,23 @@ public sealed class TimeEntry
         if (Hours <= 0 || Hours > 24)
         {
             throw new BusinessException(
-                "INVALID_HOURS",
-                "Количество часов должно быть больше 0 и не превышать 24");
+                DomainErrorCodes.InvalidHours,
+                DomainErrorMessages.InvalidHours);
         }
 
         var remainder = Hours % 0.5m;
         if (remainder != 0)
         {
             throw new BusinessException(
-                "INVALID_HOURS",
-                "Количество часов должно быть кратно 0.5");
+                DomainErrorCodes.InvalidHours,
+                DomainErrorMessages.InvalidHours);
+        }
+
+        if (AppliedRate < 0)
+        {
+            throw new BusinessException(
+                DomainErrorCodes.InvalidAppliedRate,
+                DomainErrorMessages.InvalidAppliedRate);
         }
     }
 }

@@ -168,4 +168,45 @@ public sealed class TimeEntryTests
 
         act.Should().NotThrow();
     }
+
+    [Fact]
+    public void ValidateInvariants_ThrowsBusinessException_WhenAppliedRateNegative()
+    {
+        var entry = new TimeEntry
+        {
+            Id = new TimeEntryId("entry-001"),
+            EmployeeId = new EmployeeId("emp-001"),
+            ProjectId = new ProjectId("proj-001"),
+            Date = new DateOnly(2026, 6, 15),
+            Hours = 8m,
+            AppliedRate = -100m,
+            Cost = -800m,
+            Version = 1
+        };
+
+        var act = () => entry.ValidateInvariants();
+
+        act.Should().Throw<BusinessException>()
+            .Where(e => e.Code == "INVALID_APPLIED_RATE");
+    }
+
+    [Fact]
+    public void ValidateInvariants_DoesNotThrow_WhenAppliedRateZero()
+    {
+        var entry = new TimeEntry
+        {
+            Id = new TimeEntryId("entry-001"),
+            EmployeeId = new EmployeeId("emp-001"),
+            ProjectId = new ProjectId("proj-001"),
+            Date = new DateOnly(2026, 6, 15),
+            Hours = 8m,
+            AppliedRate = 0m,
+            Cost = 0m,
+            Version = 1
+        };
+
+        var act = () => entry.ValidateInvariants();
+
+        act.Should().NotThrow();
+    }
 }

@@ -1,3 +1,5 @@
+using Timesheet.Domain.Common;
+
 namespace Timesheet.Domain.PeriodClosures;
 
 public sealed class PeriodClosure
@@ -11,8 +13,8 @@ public sealed class PeriodClosure
         if (Year <= 0 || Month < 1 || Month > 12)
         {
             throw new BusinessException(
-                "INVALID_PERIOD",
-                "Некорректный период: год должен быть больше 0, месяц от 1 до 12");
+                DomainErrorCodes.InvalidPeriod,
+                DomainErrorMessages.InvalidPeriod);
         }
     }
 }

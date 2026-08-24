@@ -1,3 +1,5 @@
+using Timesheet.Domain.Common;
+
 namespace Timesheet.Domain.Projects;
 
 public sealed class Project
@@ -14,15 +16,15 @@ public sealed class Project
         if (Budget < 0)
         {
             throw new BusinessException(
-                "INVALID_BUDGET",
-                "Бюджет проекта не может быть отрицательным");
+                DomainErrorCodes.InvalidBudget,
+                DomainErrorMessages.InvalidBudget);
         }
 
         if (StartDate.HasValue && EndDate.HasValue && StartDate.Value > EndDate.Value)
         {
             throw new BusinessException(
-                "INVALID_DATE_RANGE",
-                "Дата начала проекта не может быть позже даты окончания");
+                DomainErrorCodes.InvalidDateRange,
+                DomainErrorMessages.InvalidDateRange);
         }
     }
 }

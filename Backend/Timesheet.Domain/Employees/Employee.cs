@@ -1,3 +1,5 @@
+using Timesheet.Domain.Common;
+
 namespace Timesheet.Domain.Employees;
 
 public sealed class Employee
@@ -12,8 +14,8 @@ public sealed class Employee
         if (RateHistory.Count == 0)
         {
             throw new BusinessException(
-                "MISSING_RATE",
-                "История ставок сотрудника пуста");
+                DomainErrorCodes.MissingRate,
+                DomainErrorMessages.MissingRate);
         }
 
         var applicable = RateHistory
@@ -37,8 +39,8 @@ public sealed class Employee
         if (RateHistory.Count == 0)
         {
             throw new BusinessException(
-                "MISSING_RATE",
-                "История ставок сотрудника пуста");
+                DomainErrorCodes.MissingRate,
+                DomainErrorMessages.MissingRate);
         }
 
         var dates = new HashSet<DateOnly>();
@@ -49,15 +51,15 @@ public sealed class Employee
             if (!dates.Add(entry.From))
             {
                 throw new BusinessException(
-                    "DUPLICATE_RATE_DATE",
-                    $"Дублирующаяся дата ставки: {entry.From:yyyy-MM-dd}");
+                    DomainErrorCodes.DuplicateRateDate,
+                    $"{DomainErrorMessages.DuplicateRateDate}: {entry.From:yyyy-MM-dd}");
             }
 
             if (previous.HasValue && entry.From < previous.Value)
             {
                 throw new BusinessException(
-                    "INVALID_RATE_HISTORY",
-                    "История ставок должна быть отсортирована по возрастанию даты");
+                    DomainErrorCodes.InvalidRateHistory,
+                    DomainErrorMessages.InvalidRateHistory);
             }
 
             previous = entry.From;
