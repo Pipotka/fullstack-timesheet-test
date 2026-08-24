@@ -1,0 +1,12 @@
+## .NET / IDE artifacts
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userprefs
+*.nupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+TestResults/
