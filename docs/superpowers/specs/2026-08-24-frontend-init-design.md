@@ -24,7 +24,7 @@
 | 3 | React 18+ | Подключение React и React DOM как основных зависимостей |
 | 4 | Зависимости | Установка зависимостей через `npm install` (или `pnpm install`) |
 | 5 | Production-сборка | Проверка успешного выполнения `npm run build` |
-| 6 | Корневой `.gitignore` | Создание корневого `.gitignore` с правилами для `test-task.html` и `test-task.pdf` |
+| 6 | Корневой `.gitignore` | Создание корневого `.gitignore` с правилами для `test-task.html`, `test-task.pdf` и директории `/docs/` |
 | 7 | `Frontend/.gitignore` | Создание `.gitignore` внутри `Frontend/` со стандартными правилами React/Vite |
 | 8 | Базовая структура | Стандартная структура каталогов, создаваемая Vite (`src/`, `public/`, `index.html`) |
 
@@ -50,7 +50,11 @@
 ```
 frontend-init/
 ├── .git/
-├── .gitignore                    # НОВЫЙ: корневой gitignore
+├── .gitignore                    # НОВЫЙ: корневой gitignore (игнорирует test-task.*, /docs/)
+├── docs/                         # УЖЕ СУЩЕСТВУЕТ: спецификации (игнорируется для новых файлов)
+│   └── superpowers/
+│       └── specs/
+│           └── 2026-08-24-frontend-init-design.md  # Уже отслеживается Git
 ├── Frontend/
 │   ├── .gitignore                # НОВЫЙ: gitignore фронтенда
 │   ├── index.html                # Точка входа Vite
@@ -84,9 +88,20 @@ frontend-init/
 # Файлы тестового задания (не являются частью исходного кода)
 test-task.html
 test-task.pdf
+
+# Спецификации и проектная документация (не являются частью исходного кода)
+/docs/
 ```
 
-Допускается добавление других общих правил (например, IDE-файлы), но `test-task.html` и `test-task.pdf` должны быть указаны явно.
+Допускается добавление других общих правил (например, IDE-файлы), но `test-task.html`, `test-task.pdf` и `/docs/` должны быть указаны явно.
+
+#### 3.2.1. Поведение Git в отношении уже отслеживаемых файлов
+
+Правило `/docs/` в `.gitignore` применяется **только к новым неотслеживаемым файлам**. Файлы, которые уже были добавлены в индекс Git (через `git add`) и зафиксированы в истории (через `git commit`), **продолжают отслеживаться**, несмотря на наличие соответствующего правила в `.gitignore`.
+
+**Практическое следствие для данного проекта:** файл `docs/superpowers/specs/2026-08-24-frontend-init-design.md` (данная спецификация) уже отслеживается Git. Добавление правила `/docs/` в корневой `.gitignore` **не приведёт** к прекращению отслеживания этого файла. Файл останется в индексе и будет отображаться в `git status` при внесении изменений.
+
+Для прекращения отслеживания уже добавленного файла потребовалось бы явно выполнить `git rm --cached <file>`, однако это **не входит в объём** данной задачи (см. §2.2).
 
 ### 3.3. `Frontend/.gitignore`
 
@@ -167,9 +182,11 @@ Thumbs.db
 | 2 | `npm install` завершается без ошибок | Выполнение команды в `Frontend/` |
 | 3 | `npm run build` завершается успешно, создаёт `dist/` | Выполнение команды, проверка наличия `dist/index.html` |
 | 4 | `npm run dev` запускает dev-сервер | Ручная проверка или `curl localhost:5173` |
-| 5 | Корневой `.gitignore` содержит `test-task.html` и `test-task.pdf` | Чтение файла |
+| 5 | Корневой `.gitignore` содержит `test-task.html`, `test-task.pdf` и `/docs/` | Чтение файла |
 | 6 | `Frontend/.gitignore` содержит все обязательные правила | Чтение файла, проверка по списку из §3.3 |
 | 7 | `test-task.html` и `test-task.pdf` не отображаются в `git status` | Выполнение `git status` |
+| 7a | Новые файлы в `docs/` не отображаются в `git status` как untracked | Создание тестового файла `docs/test-ignore.tmp`, выполнение `git status` — файл не должен появиться; удаление тестового файла |
+| 7b | Уже отслеживаемый файл спецификации остаётся в индексе после добавления `/docs/` в `.gitignore` | Выполнение `git ls-files docs/superpowers/specs/2026-08-24-frontend-init-design.md` — файл должен быть в списке; `git status` должен показывать его при изменении |
 | 8 | Существующие файлы не изменены | `git diff NOTES.md test-task.html test-task.pdf LICENSE code-review/` — пустой вывод |
 | 9 | TypeScript работает в strict mode | Проверка `tsconfig.json`: `"strict": true` |
 | 10 | Не установлены UI-библиотеки и state management | Проверка `package.json`: отсутствуют mui, antd, tailwind, zustand, redux и т.п. |
@@ -205,6 +222,7 @@ grep '"strict"' tsconfig.json
 # 5. Проверка .gitignore
 grep 'test-task.html' ../.gitignore
 grep 'test-task.pdf' ../.gitignore
+grep '/docs/' ../.gitignore
 grep 'node_modules' .gitignore
 grep 'dist' .gitignore
 grep '.env' .gitignore
@@ -214,12 +232,20 @@ git diff NOTES.md test-task.html test-task.pdf LICENSE code-review/
 
 # 7. Проверка игнорирования test-task файлов
 git status | grep test-task  # Не должно быть в untracked
+
+# 8. Проверка игнорирования новых файлов в docs/
+touch ../docs/test-ignore.tmp
+git status | grep test-ignore  # Не должно быть в untracked
+rm ../docs/test-ignore.tmp
+
+# 9. Проверка, что спецификация продолжает отслеживаться
+git ls-files ../docs/superpowers/specs/2026-08-24-frontend-init-design.md  # Должен вывести путь
 ```
 
 ### 6.2. Ручная проверка
 
 1. Открыть `Frontend/.gitignore` и сверить с перечнем из §3.3.
-2. Открыть корневой `.gitignore` и убедиться, что `test-task.html` и `test-task.pdf` указаны явно.
+2. Открыть корневой `.gitignore` и убедиться, что `test-task.html`, `test-task.pdf` и `/docs/` указаны явно.
 3. Выполнить `npm run dev` и убедиться, что dev-сервер запускается и отдаёт страницу.
 4. Проверить `package.json` — убедиться, что нет лишних зависимостей.
 5. Проверить сообщение коммита через `git log -1`.
@@ -262,3 +288,4 @@ git status | grep test-task  # Не должно быть в untracked
 | Дата | Автор | Изменение |
 |------|-------|-----------|
 | 2026-08-24 | — | Первоначальная версия спецификации |
+| 2026-08-24 | — | Добавлено требование игнорирования `/docs/` в корневом `.gitignore`; описано поведение Git для уже отслеживаемых файлов (§3.2.1); обновлены критерии приёмки и проверки |
