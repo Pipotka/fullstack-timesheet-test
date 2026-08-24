@@ -1,4 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Timesheet.Application</AssemblyName>
+    <RootNamespace>Timesheet.Application</RootNamespace>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MediatR" />
     <PackageReference Include="FluentValidation" />

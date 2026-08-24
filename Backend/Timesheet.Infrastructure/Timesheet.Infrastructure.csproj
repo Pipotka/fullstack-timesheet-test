@@ -1,4 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Timesheet.Infrastructure</AssemblyName>
+    <RootNamespace>Timesheet.Infrastructure</RootNamespace>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MongoDB.Driver" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />

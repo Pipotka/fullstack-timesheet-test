@@ -1,2 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Timesheet.Domain</AssemblyName>
+    <RootNamespace>Timesheet.Domain</RootNamespace>
+  </PropertyGroup>
 </Project>
