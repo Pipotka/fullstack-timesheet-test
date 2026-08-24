@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import type { Employee } from '../../entities/employee/types';
 import type { Project } from '../../entities/project/types';
 import { useRepositories } from '../../app/providers/useRepositories';
-import { getMonthName } from '../../shared/lib/date-utils';
+import { getMonthName, getCurrentYearMonth } from '../../shared/lib/date-utils';
 
 interface TimesheetFiltersProps {
   year: number;
@@ -13,7 +13,7 @@ interface TimesheetFiltersProps {
   onAdd: () => void;
 }
 
-const YEARS = [2025, 2026, 2027];
+const ALL_YEARS = [2025, 2026, 2027];
 
 export function TimesheetFilters({
   year,
@@ -26,6 +26,9 @@ export function TimesheetFilters({
   const repos = useRepositories();
   const employees: Employee[] = repos.employees.getAll();
   const projects: Project[] = repos.projects.getAll();
+
+  const currentYear = getCurrentYearMonth().year;
+  const years = useMemo(() => ALL_YEARS.filter((y) => y <= currentYear), [currentYear]);
 
   const months = useMemo(
     () => Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: getMonthName(i + 1) })),
@@ -54,7 +57,7 @@ export function TimesheetFilters({
             value={year}
             onChange={(e) => onFilterChange({ year: Number(e.target.value) })}
           >
-            {YEARS.map((y) => (
+            {years.map((y) => (
               <option key={y} value={y}>
                 {y}
               </option>

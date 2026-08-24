@@ -1,12 +1,19 @@
-import { getMonthName } from '../../shared/lib/date-utils';
+import { useMemo } from 'react';
+import { getMonthName, getCurrentYearMonth } from '../../shared/lib/date-utils';
 import { useProjectReport } from '../../features/reports/useProjectReport';
 import { ProjectReportGrid } from '../../widgets/reports/ProjectReportGrid';
 
-const YEARS = [2025, 2026, 2027];
-const MONTHS = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: getMonthName(i + 1) }));
+const ALL_YEARS = [2025, 2026, 2027];
 
 export function ProjectReportsPage() {
   const { report, loading, year, month, setYearMonth } = useProjectReport();
+
+  const currentYear = getCurrentYearMonth().year;
+  const years = useMemo(() => ALL_YEARS.filter((y) => y <= currentYear), [currentYear]);
+  const months = useMemo(
+    () => Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: getMonthName(i + 1) })),
+    [],
+  );
 
   return (
     <div className="container-fluid py-3">
@@ -21,7 +28,7 @@ export function ProjectReportsPage() {
               value={month}
               onChange={(e) => setYearMonth(year, Number(e.target.value))}
             >
-              {MONTHS.map((m) => (
+              {months.map((m) => (
                 <option key={m.value} value={m.value}>
                   {m.label}
                 </option>
@@ -33,7 +40,7 @@ export function ProjectReportsPage() {
               value={year}
               onChange={(e) => setYearMonth(Number(e.target.value), month)}
             >
-              {YEARS.map((y) => (
+              {years.map((y) => (
                 <option key={y} value={y}>
                   {y}
                 </option>

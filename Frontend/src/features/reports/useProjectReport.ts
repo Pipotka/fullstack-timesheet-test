@@ -1,6 +1,16 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type { ProjectReport } from '../../entities/report/types';
 import { useRepositories } from '../../app/providers/useRepositories';
+import { getCurrentYearMonth } from '../../shared/lib/date-utils';
+import {
+  parseReportQuery,
+  serializeReportQuery,
+  replaceKnownParams,
+  REPORT_QUERY_KEYS,
+  type FilterDefaults,
+  type ReportQuery,
+} from '../../shared/lib/filter-query';
 
 export interface UseProjectReportResult {
   report: ProjectReport | null;
@@ -13,23 +23,49 @@ export interface UseProjectReportResult {
 
 export function useProjectReport(): UseProjectReportResult {
   const repos = useRepositories();
-  const now = new Date();
-  const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth() + 1);
-  // Force-update counter to re-compute data after mutations
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Defaults: текущие год/месяц
+  const defaults = useMemo<FilterDefaults>(() => {
+    const { year, month } = getCurrentYearMonth();
+    return { year, month };
+  }, []);
+
+  // Парсим URL — источник истины
+  const query: ReportQuery = useMemo(
+    () => parseReportQuery(searchParams, defaults),
+    [searchParams, defaults],
+  );
+
+  // Счётчик ревизий для пересчёта после мутаций
   const [, setRevision] = useState(0);
 
-  // Compute synchronously during render (mock data is synchronous)
-  const report = repos.reports.getProjectReport(year, month);
+  // Синхронный расчёт отчёта (mock-данные синхронны)
+  const report = repos.reports.getProjectReport(query.year, query.month);
 
-  const setYearMonth = useCallback((y: number, m: number) => {
-    setYear(y);
-    setMonth(m);
-  }, [setYear, setMonth]);
+  /** Изменение year/month → запись в URL, сохранение неизвестных ключей */
+  const setYearMonth = useCallback(
+    (year: number, month: number) => {
+      setSearchParams((prev) => {
+        const next: ReportQuery = { year, month };
+        const serialized = serializeReportQuery(next, defaults);
+        return replaceKnownParams(prev, REPORT_QUERY_KEYS, serialized);
+      });
+    },
+    [setSearchParams, defaults],
+  );
 
+  /** CRUD refresh: не трогает URL */
   const refresh = useCallback(() => {
     setRevision((r) => r + 1);
   }, []);
 
-  return { report, loading: false, year, month, setYearMonth, refresh };
+  return {
+    report,
+    loading: false,
+    year: query.year,
+    month: query.month,
+    setYearMonth,
+    refresh,
+  };
 }
