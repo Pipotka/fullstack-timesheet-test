@@ -432,7 +432,8 @@ class MockReportRepository implements ReportRepository {
       totalHours += r.hours;
       totalAmount = roundMoney(totalAmount + r.amount);
 
-      const percent = r.budget > 0 ? roundMoney((r.amount / r.budget) * 100) : 0;
+      const rawPercent = r.budget > 0 ? (r.amount / r.budget) * 100 : 0;
+      const percent = roundMoney(rawPercent);
       return {
         projectId: r.projectId,
         projectCode: r.projectCode,
@@ -441,8 +442,8 @@ class MockReportRepository implements ReportRepository {
         amount: r.amount,
         budget: r.budget,
         percent,
-        isRisk: percent > 80,
-        isOverspent: percent > 100,
+        isRisk: rawPercent > 80,
+        isOverspent: rawPercent > 100,
       };
     });
 
