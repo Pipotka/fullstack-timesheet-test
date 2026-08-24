@@ -6,6 +6,7 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 import type { ProjectReportRow } from '../../entities/report/types';
 import { formatMoney, formatHours } from '../../shared/lib/money-utils';
+import { getPercentCellHighlight } from './reportCellHighlight';
 
 interface ProjectReportGridProps {
   rows: ProjectReportRow[];
@@ -54,17 +55,10 @@ export function ProjectReportGrid({
         field: 'percent',
         valueFormatter: (p) => `${Math.round(p.value as number)}%`,
         width: 100,
-        cellClass: (params) => {
-          const val = params.value as number;
-          if (val > 100) return 'text-end text-danger fw-bold';
-          if (val > 80) return 'text-end text-warning fw-bold';
-          return 'text-end';
-        },
+        cellClass: (params) => getPercentCellHighlight(params.data).cssClass,
         cellStyle: (params) => {
-          const val = params.value as number;
-          if (val > 100) return { backgroundColor: '#f8d7da' };
-          if (val > 80) return { backgroundColor: '#fff3cd' };
-          return null;
+          const { backgroundColor } = getPercentCellHighlight(params.data);
+          return backgroundColor ? { backgroundColor } : null;
         },
       },
       {
