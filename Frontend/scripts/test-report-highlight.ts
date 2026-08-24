@@ -45,7 +45,7 @@ const cases: Case[] = [
     expectedBg: null,
   },
   {
-    name: 'rawPercent = 100.0 → isOverspent = false (не строго >100) → без фона',
+    name: 'rawPercent = 100.0 → isRisk = true, isOverspent = false → жёлтый фон (риск, не перерасход)',
     data: { isOverspent: false, isRisk: true },
     expectedCss: 'text-end text-warning fw-bold',
     expectedBg: '#fff3cd',
