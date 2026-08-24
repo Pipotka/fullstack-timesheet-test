@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import type { TimeEntryDto, TimeEntryUpdateDto } from '../../entities/time-entry/types';
 import type { ApiError } from '../../shared/types/api-error';
-import { useRepositories } from '../../app/providers/RepositoriesProvider';
+import { useRepositories } from '../../app/providers/useRepositories';
 
 export interface UseTimeEntryActionsResult {
   submitting: boolean;

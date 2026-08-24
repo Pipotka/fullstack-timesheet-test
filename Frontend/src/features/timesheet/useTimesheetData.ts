@@ -1,8 +1,8 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import type { TimeEntryView } from '../../entities/time-entry/types';
 import type { TimeEntryFilters, TimeEntryTotals } from '../../shared/api/contracts';
 import type { ApiError } from '../../shared/types/api-error';
-import { useRepositories } from '../../app/providers/RepositoriesProvider';
+import { useRepositories } from '../../app/providers/useRepositories';
 
 export interface UseTimesheetDataResult {
   entries: TimeEntryView[];
@@ -26,11 +26,9 @@ export function useTimesheetData(): UseTimesheetDataResult {
   const [employeeId, setEmployeeId] = useState('');
   const [projectId, setProjectId] = useState('');
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<ApiError | null>(null);
-  const [entries, setEntries] = useState<TimeEntryView[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [totals, setTotals] = useState<TimeEntryTotals>({ hours: 0, amount: 0 });
+  const [error] = useState<ApiError | null>(null);
+  // Force-update counter to re-compute data after mutations
+  const [, setRevision] = useState(0);
   const pageSize = 10;
 
   const filters = useMemo<TimeEntryFilters>(
@@ -38,25 +36,9 @@ export function useTimesheetData(): UseTimesheetDataResult {
     [year, month, employeeId, projectId],
   );
 
-  const refresh = useCallback(() => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = repos.timeEntries.list(filters, page, pageSize);
-      const t = repos.timeEntries.getTotals(filters);
-      setEntries(result.items);
-      setTotalCount(result.totalCount);
-      setTotals(t);
-    } catch (e) {
-      setError({ code: 'UNKNOWN', message: (e as Error).message });
-    } finally {
-      setLoading(false);
-    }
-  }, [repos, filters, page, pageSize]);
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  // Compute synchronously during render (mock data is synchronous)
+  const result = repos.timeEntries.list(filters, page, pageSize);
+  const totals = repos.timeEntries.getTotals(filters);
 
   const setFiltersPartial = useCallback((partial: Partial<TimeEntryFilters>) => {
     if (partial.year !== undefined) setYear(partial.year);
@@ -64,13 +46,17 @@ export function useTimesheetData(): UseTimesheetDataResult {
     if (partial.employeeId !== undefined) setEmployeeId(partial.employeeId);
     if (partial.projectId !== undefined) setProjectId(partial.projectId);
     setPage(1);
+  }, [setYear, setMonth, setEmployeeId, setProjectId, setPage]);
+
+  const refresh = useCallback(() => {
+    setRevision((r) => r + 1);
   }, []);
 
   return {
-    entries,
-    totalCount,
+    entries: result.items,
+    totalCount: result.totalCount,
     totals,
-    loading,
+    loading: false,
     error,
     page,
     pageSize,

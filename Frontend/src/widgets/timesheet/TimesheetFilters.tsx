@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { Employee } from '../../entities/employee/types';
 import type { Project } from '../../entities/project/types';
-import { useRepositories } from '../../app/providers/RepositoriesProvider';
+import { useRepositories } from '../../app/providers/useRepositories';
 import { getMonthName } from '../../shared/lib/date-utils';
 
 interface TimesheetFiltersProps {

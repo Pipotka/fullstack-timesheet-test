@@ -24,6 +24,8 @@ export interface TimeEntryUpdateDto extends TimeEntryDto {
 
 export interface TimeEntryView {
   id: string;
+  employeeId: string;
+  projectId: string;
   employeeName: string;
   projectCode: string;
   date: DateString;

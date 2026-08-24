@@ -1,6 +1,8 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { TimesheetPage } from '../pages/timesheet/TimesheetPage';
-import { ProjectReportsPage } from '../pages/reports/ProjectReportsPage';
+
+const TimesheetPage = lazy(() => import('../pages/timesheet/TimesheetPage').then(m => ({ default: m.TimesheetPage })));
+const ProjectReportsPage = lazy(() => import('../pages/reports/ProjectReportsPage').then(m => ({ default: m.ProjectReportsPage })));
 
 function AppNav() {
   const location = useLocation();
@@ -52,16 +54,28 @@ function HomePage() {
   );
 }
 
+function LoadingFallback() {
+  return (
+    <div className="container py-5 text-center">
+      <div className="spinner-border" role="status">
+        <span className="visually-hidden">Загрузка...</span>
+      </div>
+    </div>
+  );
+}
+
 export function App() {
   return (
     <BrowserRouter>
       <AppNav />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/timesheet" element={<TimesheetPage />} />
-        <Route path="/reports/projects" element={<ProjectReportsPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+      <Suspense fallback={<LoadingFallback />}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/timesheet" element={<TimesheetPage />} />
+          <Route path="/reports/projects" element={<ProjectReportsPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

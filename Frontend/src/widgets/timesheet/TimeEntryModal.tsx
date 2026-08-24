@@ -4,7 +4,7 @@ import type { TimeEntryView, TimeEntryDto, TimeEntryUpdateDto } from '../../enti
 import type { Employee } from '../../entities/employee/types';
 import type { Project } from '../../entities/project/types';
 import type { ApiError } from '../../shared/types/api-error';
-import { useRepositories } from '../../app/providers/RepositoriesProvider';
+import { useRepositories } from '../../app/providers/useRepositories';
 import {
   timeEntryValidationSchema,
   normalizeHoursInput,
@@ -32,16 +32,14 @@ export function TimeEntryModal({
   const employees: Employee[] = repos.employees.getAll();
   const projects: Project[] = repos.projects.getAll();
 
-  // We need to find the actual employee/project IDs from the entry
+  // Use the IDs directly from the entry (no fragile name/code lookup)
   const initialValues: TimeEntryFormValues = (() => {
     if (!editingEntry) {
       return { employeeId: '', projectId: '', date: '', hours: '', comment: '' };
     }
-    const emp = employees.find((e) => e.name === editingEntry.employeeName);
-    const proj = projects.find((p) => p.code === editingEntry.projectCode);
     return {
-      employeeId: emp?.id ?? '',
-      projectId: proj?.id ?? '',
+      employeeId: editingEntry.employeeId,
+      projectId: editingEntry.projectId,
       date: editingEntry.date,
       hours: String(editingEntry.hours),
       comment: editingEntry.comment,

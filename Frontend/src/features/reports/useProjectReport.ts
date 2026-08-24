@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import type { ProjectReport } from '../../entities/report/types';
-import { useRepositories } from '../../app/providers/RepositoriesProvider';
+import { useRepositories } from '../../app/providers/useRepositories';
 
 export interface UseProjectReportResult {
   report: ProjectReport | null;
@@ -16,27 +16,20 @@ export function useProjectReport(): UseProjectReportResult {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
-  const [loading, setLoading] = useState(false);
-  const [report, setReport] = useState<ProjectReport | null>(null);
+  // Force-update counter to re-compute data after mutations
+  const [, setRevision] = useState(0);
 
-  const refresh = useCallback(() => {
-    setLoading(true);
-    try {
-      const result = repos.reports.getProjectReport(year, month);
-      setReport(result);
-    } finally {
-      setLoading(false);
-    }
-  }, [repos, year, month]);
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  // Compute synchronously during render (mock data is synchronous)
+  const report = repos.reports.getProjectReport(year, month);
 
   const setYearMonth = useCallback((y: number, m: number) => {
     setYear(y);
     setMonth(m);
+  }, [setYear, setMonth]);
+
+  const refresh = useCallback(() => {
+    setRevision((r) => r + 1);
   }, []);
 
-  return { report, loading, year, month, setYearMonth, refresh };
+  return { report, loading: false, year, month, setYearMonth, refresh };
 }

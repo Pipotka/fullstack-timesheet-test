@@ -80,6 +80,8 @@ function toView(entry: TimeEntry): TimeEntryView {
   const rate = employee ? (getRateForDate(employee, entry.date) ?? 0) : 0;
   return {
     id: entry.id,
+    employeeId: entry.employeeId,
+    projectId: entry.projectId,
     employeeName: employee?.name ?? '—',
     projectCode: project?.code ?? '—',
     date: entry.date,
@@ -447,7 +449,7 @@ class MockReportRepository implements ReportRepository {
       };
     });
 
-    rows.sort((a, b) => (a.projectCode < b.projectCode ? -1 : 1));
+    rows.sort((a, b) => a.projectCode.localeCompare(b.projectCode));
 
     return {
       rows,
