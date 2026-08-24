@@ -3,7 +3,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Timesheet.Application.Common.Behaviors;
-using Timesheet.Application.Common.Validation;
+using Timesheet.Application.TimeEntries.List;
 
 namespace Timesheet.Application.Tests;
 
@@ -44,9 +44,9 @@ public sealed class DependencyInjectionTests
         var provider = services.BuildServiceProvider();
 
         using var scope = provider.CreateScope();
-        var validators = scope.ServiceProvider.GetServices<IValidator<SampleRequest>>();
+        var validators = scope.ServiceProvider.GetServices<IValidator<ListTimeEntriesQuery>>();
 
         validators.Should().NotBeNull();
-        validators.Should().ContainSingle(v => v is SampleRequestValidator);
+        validators.Should().ContainSingle(v => v is ListTimeEntriesQueryValidator);
     }
 }
