@@ -1,0 +1,15 @@
+/* Global styles */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f8f9fa;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ag-Grid cell alignment helpers */
+.text-end {
+  text-align: right;
+}
