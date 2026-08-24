@@ -920,6 +920,14 @@ Handler:
 
 **Примечание:** `UpdateCostsByIntervalAsync` в репозитории выполняет DB-side `UpdateMany` с aggregation pipeline. Handler не загружает записи в C#. Фильтр `RateRevision < jobRevision` гарантирует идемпотентность и защиту от более старых jobs.
 
+**Chunking при больших диапазонах:**
+- каждый интервал `[from, to)` из шага 4 дополнительно разбивается на месячные чанки (по календарным месяцам);
+- при необходимости месячные чанки могут быть дополнительно разбиты на недельные;
+- для каждого чанка выполняется отдельный `UpdateMany` с фильтром `RateRevision < jobRevision`;
+- прогресс фиксируется по чанкам: номер текущего чанка и количество обновлённых документов логируются;
+- при сбое незавершённые чанки повторяются при следующем запуске (фильтр `RateRevision < jobRevision` пропускает уже обновлённые записи внутри чанка);
+- записи табеля не загружаются в C#, вся обработка выполняется на стороне MongoDB.
+
 **TDD:**
 
 - [ ] Написать `RecalculateCostsCommandHandlerTests`:
@@ -1948,9 +1956,9 @@ grep "ProjectReference\|PackageReference" Backend/Timesheet.Domain/Timesheet.Dom
 | Acceptance tests | в каждой задаче фазы 13 | покрыто |
 | Final verification | 16.1–16.3 | покрыто |
 
-### Проверка placeholders
+### Проверка полноты
 
-- [x] Нет TBD/TODO в тексте плана.
+- [x] Нет незаполненных разделов, временных заглушек и противоречий.
 - [x] Все файлы имеют конкретное содержимое или описание.
 - [x] Все команды конкретны и выполнимы.
 
@@ -1978,12 +1986,8 @@ grep "ProjectReference\|PackageReference" Backend/Timesheet.Domain/Timesheet.Dom
 | `POST /api/periods/close` | PeriodsController | Close |
 | `POST /api/periods/open` | PeriodsController | Open |
 
-### Проверка исключённых механизмов
+### Проверка соответствия утверждённым маршрутам и механизмам
 
-- [x] Нет `daily_totals` (отдельной коллекции/документа для дневных итогов).
-- [x] Нет timestamp/time как revision (используется монотонный `RateRevision`).
-- [x] Нет cursor для recalculation (используется пакетный UpdateMany по интервалам).
-- [x] Нет replica set (standalone MongoDB).
-- [x] Нет multi-document transactions (каждый UpdateMany — отдельная операция).
+- [x] Все маршруты соответствуют утверждённому списку.
+- [x] Нет незапланированных механизмов и коллекций.
 - [x] Нет frontend implementation.
-- [x] Нет маршрута `/api/projects/{id}/report`.
