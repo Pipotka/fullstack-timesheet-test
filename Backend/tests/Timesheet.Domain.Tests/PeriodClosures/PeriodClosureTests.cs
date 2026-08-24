@@ -42,4 +42,58 @@ public sealed class PeriodClosureTests
         jan.Month.Should().Be(1);
         dec.Month.Should().Be(12);
     }
+
+    [Fact]
+    public void ValidateInvariants_ThrowsBusinessException_WhenYearZero()
+    {
+        var period = new PeriodClosure { Year = 0, Month = 8, IsClosed = false };
+
+        var act = () => period.ValidateInvariants();
+
+        act.Should().Throw<BusinessException>()
+            .Where(e => e.Code == "INVALID_PERIOD");
+    }
+
+    [Fact]
+    public void ValidateInvariants_ThrowsBusinessException_WhenYearNegative()
+    {
+        var period = new PeriodClosure { Year = -2026, Month = 8, IsClosed = false };
+
+        var act = () => period.ValidateInvariants();
+
+        act.Should().Throw<BusinessException>()
+            .Where(e => e.Code == "INVALID_PERIOD");
+    }
+
+    [Fact]
+    public void ValidateInvariants_ThrowsBusinessException_WhenMonthZero()
+    {
+        var period = new PeriodClosure { Year = 2026, Month = 0, IsClosed = false };
+
+        var act = () => period.ValidateInvariants();
+
+        act.Should().Throw<BusinessException>()
+            .Where(e => e.Code == "INVALID_PERIOD");
+    }
+
+    [Fact]
+    public void ValidateInvariants_ThrowsBusinessException_WhenMonthThirteen()
+    {
+        var period = new PeriodClosure { Year = 2026, Month = 13, IsClosed = false };
+
+        var act = () => period.ValidateInvariants();
+
+        act.Should().Throw<BusinessException>()
+            .Where(e => e.Code == "INVALID_PERIOD");
+    }
+
+    [Fact]
+    public void ValidateInvariants_DoesNotThrow_WhenValidPeriod()
+    {
+        var period = new PeriodClosure { Year = 2026, Month = 8, IsClosed = true };
+
+        var act = () => period.ValidateInvariants();
+
+        act.Should().NotThrow();
+    }
 }

@@ -85,4 +85,62 @@ public sealed class EmployeeTests
 
         act.Should().Throw<BusinessException>();
     }
+
+    [Fact]
+    public void ValidateInvariants_ThrowsBusinessException_WhenHistoryEmpty()
+    {
+        var employee = CreateEmployee(new List<RateHistoryEntry>());
+
+        var act = () => employee.ValidateInvariants();
+
+        act.Should().Throw<BusinessException>()
+            .Where(e => e.Code == "MISSING_RATE");
+    }
+
+    [Fact]
+    public void ValidateInvariants_ThrowsBusinessException_WhenDuplicateRateDates()
+    {
+        var history = new List<RateHistoryEntry>
+        {
+            new() { From = new DateOnly(2026, 1, 1), Rate = 1000m },
+            new() { From = new DateOnly(2026, 1, 1), Rate = 1500m }
+        };
+        var employee = CreateEmployee(history);
+
+        var act = () => employee.ValidateInvariants();
+
+        act.Should().Throw<BusinessException>()
+            .Where(e => e.Code == "DUPLICATE_RATE_DATE");
+    }
+
+    [Fact]
+    public void ValidateInvariants_ThrowsBusinessException_WhenHistoryNotSorted()
+    {
+        var history = new List<RateHistoryEntry>
+        {
+            new() { From = new DateOnly(2026, 4, 1), Rate = 1500m },
+            new() { From = new DateOnly(2026, 1, 1), Rate = 1000m }
+        };
+        var employee = CreateEmployee(history);
+
+        var act = () => employee.ValidateInvariants();
+
+        act.Should().Throw<BusinessException>()
+            .Where(e => e.Code == "INVALID_RATE_HISTORY");
+    }
+
+    [Fact]
+    public void ValidateInvariants_DoesNotThrow_WhenValidHistory()
+    {
+        var history = new List<RateHistoryEntry>
+        {
+            new() { From = new DateOnly(2026, 1, 1), Rate = 1000m },
+            new() { From = new DateOnly(2026, 4, 1), Rate = 1500m }
+        };
+        var employee = CreateEmployee(history);
+
+        var act = () => employee.ValidateInvariants();
+
+        act.Should().NotThrow();
+    }
 }

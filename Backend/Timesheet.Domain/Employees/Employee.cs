@@ -31,4 +31,36 @@ public sealed class Employee
             .First()
             .Rate;
     }
+
+    public void ValidateInvariants()
+    {
+        if (RateHistory.Count == 0)
+        {
+            throw new BusinessException(
+                "MISSING_RATE",
+                "История ставок сотрудника пуста");
+        }
+
+        var dates = new HashSet<DateOnly>();
+        DateOnly? previous = null;
+
+        foreach (var entry in RateHistory)
+        {
+            if (!dates.Add(entry.From))
+            {
+                throw new BusinessException(
+                    "DUPLICATE_RATE_DATE",
+                    $"Дублирующаяся дата ставки: {entry.From:yyyy-MM-dd}");
+            }
+
+            if (previous.HasValue && entry.From < previous.Value)
+            {
+                throw new BusinessException(
+                    "INVALID_RATE_HISTORY",
+                    "История ставок должна быть отсортирована по возрастанию даты");
+            }
+
+            previous = entry.From;
+        }
+    }
 }

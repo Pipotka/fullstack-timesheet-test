@@ -68,4 +68,77 @@ public sealed class ProjectTests
         project.StartDate.Should().NotBeNull();
         project.EndDate.Should().BeNull();
     }
+
+    [Fact]
+    public void ValidateInvariants_ThrowsBusinessException_WhenNegativeBudget()
+    {
+        var project = new Project
+        {
+            Id = new ProjectId("proj-001"),
+            Code = "PRJ-001",
+            Name = "Проект 1",
+            Budget = -100m
+        };
+
+        var act = () => project.ValidateInvariants();
+
+        act.Should().Throw<BusinessException>()
+            .Where(e => e.Code == "INVALID_BUDGET");
+    }
+
+    [Fact]
+    public void ValidateInvariants_ThrowsBusinessException_WhenStartDateAfterEndDate()
+    {
+        var project = new Project
+        {
+            Id = new ProjectId("proj-001"),
+            Code = "PRJ-001",
+            Name = "Проект 1",
+            Budget = 100m,
+            StartDate = new DateOnly(2026, 12, 31),
+            EndDate = new DateOnly(2026, 1, 1)
+        };
+
+        var act = () => project.ValidateInvariants();
+
+        act.Should().Throw<BusinessException>()
+            .Where(e => e.Code == "INVALID_DATE_RANGE");
+    }
+
+    [Fact]
+    public void ValidateInvariants_DoesNotThrow_WhenValidProject()
+    {
+        var project = new Project
+        {
+            Id = new ProjectId("proj-001"),
+            Code = "PRJ-001",
+            Name = "Проект 1",
+            Budget = 2_000_000m,
+            StartDate = new DateOnly(2026, 1, 1),
+            EndDate = new DateOnly(2026, 12, 31)
+        };
+
+        var act = () => project.ValidateInvariants();
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void ValidateInvariants_DoesNotThrow_WhenSameStartAndEndDate()
+    {
+        var date = new DateOnly(2026, 6, 15);
+        var project = new Project
+        {
+            Id = new ProjectId("proj-001"),
+            Code = "PRJ-001",
+            Name = "Проект 1",
+            Budget = 100m,
+            StartDate = date,
+            EndDate = date
+        };
+
+        var act = () => project.ValidateInvariants();
+
+        act.Should().NotThrow();
+    }
 }

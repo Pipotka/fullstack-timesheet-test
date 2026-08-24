@@ -44,4 +44,128 @@ public sealed class TimeEntryTests
 
         cost.Should().Be(999999990.00m);
     }
+
+    [Fact]
+    public void ValidateInvariants_ThrowsBusinessException_WhenHoursZero()
+    {
+        var entry = new TimeEntry
+        {
+            Id = new TimeEntryId("entry-001"),
+            EmployeeId = new EmployeeId("emp-001"),
+            ProjectId = new ProjectId("proj-001"),
+            Date = new DateOnly(2026, 6, 15),
+            Hours = 0m,
+            AppliedRate = 1500m,
+            Cost = 0m,
+            Version = 1
+        };
+
+        var act = () => entry.ValidateInvariants();
+
+        act.Should().Throw<BusinessException>()
+            .Where(e => e.Code == "INVALID_HOURS");
+    }
+
+    [Fact]
+    public void ValidateInvariants_ThrowsBusinessException_WhenHoursNegative()
+    {
+        var entry = new TimeEntry
+        {
+            Id = new TimeEntryId("entry-001"),
+            EmployeeId = new EmployeeId("emp-001"),
+            ProjectId = new ProjectId("proj-001"),
+            Date = new DateOnly(2026, 6, 15),
+            Hours = -1m,
+            AppliedRate = 1500m,
+            Cost = 0m,
+            Version = 1
+        };
+
+        var act = () => entry.ValidateInvariants();
+
+        act.Should().Throw<BusinessException>()
+            .Where(e => e.Code == "INVALID_HOURS");
+    }
+
+    [Fact]
+    public void ValidateInvariants_ThrowsBusinessException_WhenHoursExceeds24()
+    {
+        var entry = new TimeEntry
+        {
+            Id = new TimeEntryId("entry-001"),
+            EmployeeId = new EmployeeId("emp-001"),
+            ProjectId = new ProjectId("proj-001"),
+            Date = new DateOnly(2026, 6, 15),
+            Hours = 25m,
+            AppliedRate = 1500m,
+            Cost = 37500m,
+            Version = 1
+        };
+
+        var act = () => entry.ValidateInvariants();
+
+        act.Should().Throw<BusinessException>()
+            .Where(e => e.Code == "INVALID_HOURS");
+    }
+
+    [Fact]
+    public void ValidateInvariants_ThrowsBusinessException_WhenHoursNotMultipleOfHalf()
+    {
+        var entry = new TimeEntry
+        {
+            Id = new TimeEntryId("entry-001"),
+            EmployeeId = new EmployeeId("emp-001"),
+            ProjectId = new ProjectId("proj-001"),
+            Date = new DateOnly(2026, 6, 15),
+            Hours = 3.7m,
+            AppliedRate = 1500m,
+            Cost = 5550m,
+            Version = 1
+        };
+
+        var act = () => entry.ValidateInvariants();
+
+        act.Should().Throw<BusinessException>()
+            .Where(e => e.Code == "INVALID_HOURS");
+    }
+
+    [Fact]
+    public void ValidateInvariants_DoesNotThrow_WhenValidHours()
+    {
+        var entry = new TimeEntry
+        {
+            Id = new TimeEntryId("entry-001"),
+            EmployeeId = new EmployeeId("emp-001"),
+            ProjectId = new ProjectId("proj-001"),
+            Date = new DateOnly(2026, 6, 15),
+            Hours = 8.5m,
+            AppliedRate = 1500m,
+            Cost = 12750m,
+            Version = 1
+        };
+
+        var act = () => entry.ValidateInvariants();
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void ValidateInvariants_DoesNotThrow_WhenHoursExactly24()
+    {
+        var entry = new TimeEntry
+        {
+            Id = new TimeEntryId("entry-001"),
+            EmployeeId = new EmployeeId("emp-001"),
+            ProjectId = new ProjectId("proj-001"),
+            Date = new DateOnly(2026, 6, 15),
+            Hours = 24m,
+            AppliedRate = 1500m,
+            Cost = 36000m,
+            Version = 1
+        };
+
+        var act = () => entry.ValidateInvariants();
+
+        act.Should().NotThrow();
+    }
 }
