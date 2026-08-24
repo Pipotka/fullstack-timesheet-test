@@ -20,6 +20,9 @@ public static class ErrorMessages
     public const string ConcurrencyConflict =
         "Конфликт версий: запись была изменена другим пользователем";
 
+    public const string DateOutsideProjectRange =
+        "Дата записи выходит за диапазон дат проекта";
+
     public const string MissingRate =
         "Не найдена действующая ставка на указанную дату";
 

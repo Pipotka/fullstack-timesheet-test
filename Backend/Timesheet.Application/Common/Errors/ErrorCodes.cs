@@ -9,6 +9,7 @@ public static class ErrorCodes
     public const string TimeEntryNotFound = "TIME_ENTRY_NOT_FOUND";
     public const string PeriodClosed = "PERIOD_CLOSED";
     public const string ConcurrencyConflict = "CONCURRENCY_CONFLICT";
+    public const string DateOutsideProjectRange = "DATE_OUTSIDE_PROJECT_RANGE";
 
     public const string MissingRate = "MISSING_RATE";
     public const string DuplicateRateDate = "DUPLICATE_RATE_DATE";
