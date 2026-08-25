@@ -15,4 +15,9 @@
     <ProjectReference Include="..\Timesheet.Application\Timesheet.Application.csproj" />
     <ProjectReference Include="..\Timesheet.Infrastructure\Timesheet.Infrastructure.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

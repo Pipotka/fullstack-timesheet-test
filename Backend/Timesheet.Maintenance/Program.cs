@@ -128,17 +128,30 @@ public static class Program
 
     private static ServiceProvider BuildServiceProvider()
     {
-        var configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json", optional: true)
-            .AddJsonFile("appsettings.Maintenance.json", optional: true)
-            .AddEnvironmentVariables()
-            .Build();
+        var configuration = BuildConfiguration();
 
         var services = new ServiceCollection();
         services.AddApplication();
         services.AddInfrastructure(configuration);
         return services.BuildServiceProvider();
     }
+
+    internal static IConfiguration BuildConfiguration()
+    {
+        // Load config from AppContext.BaseDirectory (where appsettings.json is copied to output)
+        // This ensures the config is found regardless of current working directory
+        var basePath = AppContext.BaseDirectory;
+
+        return new ConfigurationBuilder()
+            .SetBasePath(basePath)
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+            .AddJsonFile("appsettings.Maintenance.json", optional: true, reloadOnChange: false)
+            .AddEnvironmentVariables()
+            .Build();
+    }
+
+    // Exposed for testing
+    public static IConfiguration BuildConfigurationForTest() => BuildConfiguration();
 
     private static int PrintUnknownCommand(string command)
     {

@@ -29,15 +29,19 @@ public sealed class RateChangeService(
             return revision;
         }
 
-        var rateHistory = employee.RateHistory;
+        // Sort rate history by From date to ensure correct half-open intervals
+        // This is necessary because AddToSet does not guarantee order
+        var sortedHistory = employee.RateHistory
+            .OrderBy(entry => entry.From)
+            .ToList();
 
-        for (var i = 0; i < rateHistory.Count; i++)
+        for (var i = 0; i < sortedHistory.Count; i++)
         {
-            var from = rateHistory[i].From;
-            var to = (i + 1 < rateHistory.Count)
-                ? rateHistory[i + 1].From
+            var from = sortedHistory[i].From;
+            var to = (i + 1 < sortedHistory.Count)
+                ? sortedHistory[i + 1].From
                 : DateOnly.MaxValue;
-            var rate = rateHistory[i].Rate;
+            var rate = sortedHistory[i].Rate;
 
             var interval = new DateRange(from, to);
 

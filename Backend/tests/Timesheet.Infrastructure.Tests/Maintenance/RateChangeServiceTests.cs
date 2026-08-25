@@ -120,6 +120,56 @@ public class RateChangeServiceTests
             _service.ChangeRateAndRecalculateAsync("emp-1", new DateOnly(2026, 3, 1), 600, cts.Token));
     }
 
+    [Fact]
+    public async Task ChangeRateAndRecalculate_SortsUnsortedRateHistory()
+    {
+        // Arrange: deliberately unsorted history (Mar before Jan)
+        var employee = new Employee
+        {
+            Id = new EmployeeId("emp-1"),
+            FullName = "Test",
+            RateHistory = new List<RateHistoryEntry>
+            {
+                new() { From = new DateOnly(2026, 3, 1), Rate = 600 },
+                new() { From = new DateOnly(2026, 1, 1), Rate = 500 }
+            }.AsReadOnly(),
+            RateRevision = 2
+        };
+
+        _employeeRepo.ChangeRateAsync(Arg.Any<EmployeeId>(), Arg.Any<DateOnly>(), Arg.Any<decimal>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(2L));
+        _employeeRepo.GetByIdAsync(Arg.Is<EmployeeId>(id => id.Value == "emp-1"), Arg.Any<CancellationToken>())
+            .Returns(employee);
+
+        var capturedIntervals = new List<(DateOnly From, DateOnly To, decimal Rate)>();
+
+        _timeEntryRepo.UpdateCostsByIntervalAsync(
+            Arg.Any<EmployeeId>(),
+            Arg.Any<DateRange>(),
+            Arg.Any<decimal>(),
+            Arg.Any<long>(),
+            Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask)
+            .AndDoes(call =>
+            {
+                var range = call.ArgAt<DateRange>(1);
+                var rate = call.ArgAt<decimal>(2);
+                capturedIntervals.Add((range.From, range.To, rate));
+            });
+
+        // Act
+        await _service.ChangeRateAndRecalculateAsync("emp-1", new DateOnly(2026, 3, 1), 650, CancellationToken.None);
+
+        // Assert: intervals should be sorted by From date
+        capturedIntervals.Should().HaveCount(2);
+        capturedIntervals[0].From.Should().Be(new DateOnly(2026, 1, 1));
+        capturedIntervals[0].To.Should().Be(new DateOnly(2026, 3, 1));
+        capturedIntervals[0].Rate.Should().Be(500);
+        capturedIntervals[1].From.Should().Be(new DateOnly(2026, 3, 1));
+        capturedIntervals[1].To.Should().Be(DateOnly.MaxValue);
+        capturedIntervals[1].Rate.Should().Be(600);
+    }
+
     private void SetupEmployeeWithSingleRate()
     {
         var employee = new Employee
