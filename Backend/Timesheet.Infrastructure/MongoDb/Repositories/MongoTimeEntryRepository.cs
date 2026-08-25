@@ -154,7 +154,7 @@ public sealed class MongoTimeEntryRepository : ITimeEntryRepository
         };
 
         var pipeline = PipelineDefinition<TimeEntryDocument, TimeEntryDocument>.Create(pipelineStages);
-        await _collection.UpdateManyAsync(filter, pipeline, cancellationToken: ct);
+        await _collection.UpdateManyAsync(filter, pipeline, options: null, cancellationToken: ct);
     }
 
     private static FilterDefinition<TimeEntryDocument> BuildFilter(TimeEntryFilter filter)

@@ -1,4 +1,6 @@
 using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using NSubstitute;
 using Timesheet.Domain;
@@ -142,17 +144,18 @@ public sealed class MongoTimeEntryRepositoryTests
     }
 
     [Fact]
-    public async Task UpdateCostsByIntervalAsync_CompletesSuccessfully()
+    public async Task UpdateCostsByIntervalAsync_UsesAggregationPipeline()
     {
-        // Note: Implementation uses aggregation pipeline with $set stage containing
-        // $round($multiply($hours, rate), 2) for cost calculation.
-        // This test verifies the method completes without error.
+        // Arrange
         var updateResult = Substitute.For<UpdateResult>();
         updateResult.ModifiedCount.Returns(5);
 
+        UpdateDefinition<TimeEntryDocument>? capturedUpdate = null;
+        FilterDefinition<TimeEntryDocument>? capturedFilter = null;
+
         _collection.UpdateManyAsync(
-            Arg.Any<FilterDefinition<TimeEntryDocument>>(),
-            Arg.Any<UpdateDefinition<TimeEntryDocument>>(),
+            Arg.Do<FilterDefinition<TimeEntryDocument>>(f => capturedFilter = f),
+            Arg.Do<UpdateDefinition<TimeEntryDocument>>(u => capturedUpdate = u),
             Arg.Any<UpdateOptions>(),
             Arg.Any<CancellationToken>()).Returns(updateResult);
 
@@ -161,8 +164,19 @@ public sealed class MongoTimeEntryRepositoryTests
         var rate = 150.50m;
         var jobRevision = 42L;
 
-        var act = () => _repository.UpdateCostsByIntervalAsync(employeeId, interval, rate, jobRevision, CancellationToken.None);
+        // Act
+        await _repository.UpdateCostsByIntervalAsync(employeeId, interval, rate, jobRevision, CancellationToken.None);
 
-        await act.Should().NotThrowAsync();
+        // Assert - verify update was captured
+        capturedUpdate.Should().NotBeNull("Update must be provided");
+        capturedFilter.Should().NotBeNull("Filter must be provided");
+
+        // Verify the update is a PipelineDefinition (implicitly converted to UpdateDefinition)
+        // The production code uses PipelineDefinition.Create(), which is wrapped in PipelineUpdateDefinition
+        capturedUpdate!.GetType().Name.Should().Contain("Pipeline",
+            "Update should be a pipeline-based update (PipelineUpdateDefinition)");
+
+        // Note: Full pipeline structure verification requires integration tests with real MongoDB
+        // Unit tests verify the correct overload is called and parameters are passed correctly
     }
 }
