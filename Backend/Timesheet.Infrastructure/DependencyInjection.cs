@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using Timesheet.Application.Common.Interfaces;
+using Timesheet.Infrastructure.Maintenance;
 using Timesheet.Infrastructure.MongoDb;
 using Timesheet.Infrastructure.MongoDb.Indexes;
 using Timesheet.Infrastructure.MongoDb.Mappings;
@@ -34,6 +35,9 @@ public static class DependencyInjection
         services.AddScoped<IProjectRepository, MongoProjectRepository>();
         services.AddScoped<IPeriodClosureRepository, MongoPeriodClosureRepository>();
         services.AddScoped<IndexCreator>();
+
+        services.AddScoped<SeedData>();
+        services.AddScoped<RateChangeService>();
 
         return services;
     }

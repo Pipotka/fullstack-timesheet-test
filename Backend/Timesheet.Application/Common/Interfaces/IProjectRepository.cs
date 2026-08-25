@@ -9,4 +9,5 @@ public interface IProjectRepository
     Task<Project?> GetByIdAsync(ProjectId id, CancellationToken ct);
     Task<IReadOnlyList<Project>> ListAsync(CancellationToken ct);
     Task<IReadOnlyList<ProjectReportResult>> GetReportsByPeriodAsync(int year, int month, CancellationToken ct);
+    Task CreateAsync(Project project, CancellationToken ct);
 }

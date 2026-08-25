@@ -91,4 +91,10 @@ public sealed class MongoProjectRepository : IProjectRepository
 
         return results!;
     }
+
+    public async Task CreateAsync(Project project, CancellationToken ct)
+    {
+        var document = ProjectMapper.ToDocument(project);
+        await _projects.InsertOneAsync(document, cancellationToken: ct);
+    }
 }

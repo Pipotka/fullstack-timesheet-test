@@ -63,4 +63,10 @@ public sealed class MongoEmployeeRepository : IEmployeeRepository
 
         return updatedDocument.RateRevision;
     }
+
+    public async Task CreateAsync(Employee employee, CancellationToken ct)
+    {
+        var document = EmployeeMapper.ToDocument(employee);
+        await _collection.InsertOneAsync(document, cancellationToken: ct);
+    }
 }
