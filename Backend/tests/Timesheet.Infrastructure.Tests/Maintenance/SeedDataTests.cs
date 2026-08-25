@@ -167,4 +167,96 @@ public class SeedDataTests
 
         await _timeEntryRepo.Received(4).CreateAsync(Arg.Any<TimeEntry>(), Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task SeedAsync_Entry1_Ivanov_P001_Feb20_8h_Rate500_Cost4000()
+    {
+        _employeeRepo.GetByIdAsync(Arg.Any<EmployeeId>(), Arg.Any<CancellationToken>())
+            .Returns((Employee?)null);
+        _projectRepo.GetByIdAsync(Arg.Any<ProjectId>(), Arg.Any<CancellationToken>())
+            .Returns((Project?)null);
+        _timeEntryRepo.GetByIdAsync(Arg.Any<TimeEntryId>(), Arg.Any<CancellationToken>())
+            .Returns((TimeEntry?)null);
+
+        await _seedData.SeedAsync(CancellationToken.None);
+
+        await _timeEntryRepo.Received().CreateAsync(
+            Arg.Is<TimeEntry>(e =>
+                e.EmployeeId.Value == SeedData.IvanovId &&
+                e.ProjectId.Value == SeedData.Project001Id &&
+                e.Date == new DateOnly(2026, 2, 20) &&
+                e.Hours == 8 &&
+                e.AppliedRate == 500 &&
+                e.Cost == 4000),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SeedAsync_Entry2_Ivanov_P001_Mar05_8h_Rate600_Cost4800()
+    {
+        _employeeRepo.GetByIdAsync(Arg.Any<EmployeeId>(), Arg.Any<CancellationToken>())
+            .Returns((Employee?)null);
+        _projectRepo.GetByIdAsync(Arg.Any<ProjectId>(), Arg.Any<CancellationToken>())
+            .Returns((Project?)null);
+        _timeEntryRepo.GetByIdAsync(Arg.Any<TimeEntryId>(), Arg.Any<CancellationToken>())
+            .Returns((TimeEntry?)null);
+
+        await _seedData.SeedAsync(CancellationToken.None);
+
+        await _timeEntryRepo.Received().CreateAsync(
+            Arg.Is<TimeEntry>(e =>
+                e.EmployeeId.Value == SeedData.IvanovId &&
+                e.ProjectId.Value == SeedData.Project001Id &&
+                e.Date == new DateOnly(2026, 3, 5) &&
+                e.Hours == 8 &&
+                e.AppliedRate == 600 &&
+                e.Cost == 4800),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SeedAsync_Entry3_Petrova_P001_Mar05_4h_Rate700_Cost2800()
+    {
+        _employeeRepo.GetByIdAsync(Arg.Any<EmployeeId>(), Arg.Any<CancellationToken>())
+            .Returns((Employee?)null);
+        _projectRepo.GetByIdAsync(Arg.Any<ProjectId>(), Arg.Any<CancellationToken>())
+            .Returns((Project?)null);
+        _timeEntryRepo.GetByIdAsync(Arg.Any<TimeEntryId>(), Arg.Any<CancellationToken>())
+            .Returns((TimeEntry?)null);
+
+        await _seedData.SeedAsync(CancellationToken.None);
+
+        await _timeEntryRepo.Received().CreateAsync(
+            Arg.Is<TimeEntry>(e =>
+                e.EmployeeId.Value == SeedData.PetrovaId &&
+                e.ProjectId.Value == SeedData.Project001Id &&
+                e.Date == new DateOnly(2026, 3, 5) &&
+                e.Hours == 4 &&
+                e.AppliedRate == 700 &&
+                e.Cost == 2800),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SeedAsync_Entry4_Petrova_P002_Mar06_10h_Rate700_Cost7000()
+    {
+        _employeeRepo.GetByIdAsync(Arg.Any<EmployeeId>(), Arg.Any<CancellationToken>())
+            .Returns((Employee?)null);
+        _projectRepo.GetByIdAsync(Arg.Any<ProjectId>(), Arg.Any<CancellationToken>())
+            .Returns((Project?)null);
+        _timeEntryRepo.GetByIdAsync(Arg.Any<TimeEntryId>(), Arg.Any<CancellationToken>())
+            .Returns((TimeEntry?)null);
+
+        await _seedData.SeedAsync(CancellationToken.None);
+
+        await _timeEntryRepo.Received().CreateAsync(
+            Arg.Is<TimeEntry>(e =>
+                e.EmployeeId.Value == SeedData.PetrovaId &&
+                e.ProjectId.Value == SeedData.Project002Id &&
+                e.Date == new DateOnly(2026, 3, 6) &&
+                e.Hours == 10 &&
+                e.AppliedRate == 700 &&
+                e.Cost == 7000),
+            Arg.Any<CancellationToken>());
+    }
 }
