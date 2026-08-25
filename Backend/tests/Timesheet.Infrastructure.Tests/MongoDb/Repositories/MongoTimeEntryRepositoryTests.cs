@@ -140,4 +140,29 @@ public sealed class MongoTimeEntryRepositoryTests
 
         result.Should().BeFalse();
     }
+
+    [Fact]
+    public async Task UpdateCostsByIntervalAsync_CompletesSuccessfully()
+    {
+        // Note: Implementation uses aggregation pipeline with $set stage containing
+        // $round($multiply($hours, rate), 2) for cost calculation.
+        // This test verifies the method completes without error.
+        var updateResult = Substitute.For<UpdateResult>();
+        updateResult.ModifiedCount.Returns(5);
+
+        _collection.UpdateManyAsync(
+            Arg.Any<FilterDefinition<TimeEntryDocument>>(),
+            Arg.Any<UpdateDefinition<TimeEntryDocument>>(),
+            Arg.Any<UpdateOptions>(),
+            Arg.Any<CancellationToken>()).Returns(updateResult);
+
+        var employeeId = new EmployeeId("emp-001");
+        var interval = new DateRange(new DateOnly(2024, 1, 1), new DateOnly(2024, 2, 1));
+        var rate = 150.50m;
+        var jobRevision = 42L;
+
+        var act = () => _repository.UpdateCostsByIntervalAsync(employeeId, interval, rate, jobRevision, CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+    }
 }

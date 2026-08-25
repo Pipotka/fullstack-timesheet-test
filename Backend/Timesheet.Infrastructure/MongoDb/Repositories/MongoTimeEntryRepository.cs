@@ -139,16 +139,22 @@ public sealed class MongoTimeEntryRepository : ITimeEntryRepository
             Builders<TimeEntryDocument>.Filter.Lt(x => x.Date, interval.To),
             Builders<TimeEntryDocument>.Filter.Lt(x => x.RateRevision, jobRevision));
 
-        var update = Builders<TimeEntryDocument>.Update
-            .Set(x => x.AppliedRate, rate)
-            .Set("cost", new BsonDocument("$round", new BsonArray
+        var pipelineStages = new BsonDocument[]
+        {
+            new BsonDocument("$set", new BsonDocument
             {
-                new BsonDocument("$multiply", new BsonArray { "$hours", rate }),
-                2
-            }))
-            .Set(x => x.RateRevision, jobRevision);
+                { "appliedRate", rate },
+                { "cost", new BsonDocument("$round", new BsonArray
+                {
+                    new BsonDocument("$multiply", new BsonArray { "$hours", rate }),
+                    2
+                }) },
+                { "rateRevision", jobRevision }
+            })
+        };
 
-        await _collection.UpdateManyAsync(filter, update, cancellationToken: ct);
+        var pipeline = PipelineDefinition<TimeEntryDocument, TimeEntryDocument>.Create(pipelineStages);
+        await _collection.UpdateManyAsync(filter, pipeline, cancellationToken: ct);
     }
 
     private static FilterDefinition<TimeEntryDocument> BuildFilter(TimeEntryFilter filter)
