@@ -1,8 +1,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
+using Timesheet.Application.Common.Interfaces;
 using Timesheet.Infrastructure.MongoDb;
+using Timesheet.Infrastructure.MongoDb.Indexes;
 using Timesheet.Infrastructure.MongoDb.Mappings;
+using Timesheet.Infrastructure.MongoDb.Repositories;
 
 namespace Timesheet.Infrastructure;
 
@@ -25,6 +28,12 @@ public static class DependencyInjection
         services.AddSingleton<IMongoDatabase>(sp =>
             sp.GetRequiredService<IMongoClient>()
               .GetDatabase(settings.DatabaseName));
+
+        services.AddScoped<ITimeEntryRepository, MongoTimeEntryRepository>();
+        services.AddScoped<IEmployeeRepository, MongoEmployeeRepository>();
+        services.AddScoped<IProjectRepository, MongoProjectRepository>();
+        services.AddScoped<IPeriodClosureRepository, MongoPeriodClosureRepository>();
+        services.AddScoped<IndexCreator>();
 
         return services;
     }
