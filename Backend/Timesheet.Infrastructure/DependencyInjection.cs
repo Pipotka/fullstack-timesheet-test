@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using Timesheet.Infrastructure.MongoDb;
+using Timesheet.Infrastructure.MongoDb.Mappings;
 
 namespace Timesheet.Infrastructure;
 
@@ -11,6 +12,8 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        BsonClassMapConfigurator.Configure();
+
         var settings = configuration
             .GetSection("MongoDb")
             .Get<MongoDbSettings>()
