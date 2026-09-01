@@ -4,7 +4,6 @@ using FluentValidation;
 using Timesheet.Api.Contracts;
 using Timesheet.Application.Common.Errors;
 using Timesheet.Domain;
-using Timesheet.Domain.Common;
 
 namespace Timesheet.Api.Middleware;
 

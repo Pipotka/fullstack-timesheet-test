@@ -26,7 +26,7 @@ public static class DependencyInjection
         services.AddSingleton<IMongoClient>(_ =>
             new MongoClient(settings.ConnectionString));
 
-        services.AddSingleton<IMongoDatabase>(sp =>
+        services.AddSingleton(sp =>
             sp.GetRequiredService<IMongoClient>()
               .GetDatabase(settings.DatabaseName));
 

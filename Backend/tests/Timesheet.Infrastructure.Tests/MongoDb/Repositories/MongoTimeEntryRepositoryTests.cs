@@ -1,6 +1,4 @@
 using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using NSubstitute;
 using Timesheet.Domain;

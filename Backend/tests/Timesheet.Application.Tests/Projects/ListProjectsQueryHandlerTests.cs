@@ -3,7 +3,6 @@ using NSubstitute;
 using Timesheet.Application.Common.Interfaces;
 using Timesheet.Application.Projects.List;
 using Timesheet.Domain;
-using Timesheet.Domain.Common;
 using Timesheet.Domain.Projects;
 
 namespace Timesheet.Application.Tests.Projects;

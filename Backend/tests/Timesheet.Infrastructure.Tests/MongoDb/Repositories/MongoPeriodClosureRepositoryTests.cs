@@ -1,4 +1,3 @@
-using FluentAssertions;
 using MongoDB.Driver;
 using NSubstitute;
 using Timesheet.Infrastructure.MongoDb.Documents;

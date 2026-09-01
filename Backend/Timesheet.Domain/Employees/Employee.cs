@@ -9,7 +9,7 @@ public sealed class Employee
     public IReadOnlyList<RateHistoryEntry> RateHistory { get; init; } = [];
     public long RateRevision { get; init; }
 
-    public decimal GetCurrentRate(DateOnly date)
+    public decimal? GetCurrentRate(DateOnly date)
     {
         if (RateHistory.Count == 0)
         {
@@ -23,15 +23,7 @@ public sealed class Employee
             .OrderByDescending(r => r.From)
             .FirstOrDefault();
 
-        if (applicable is not null)
-        {
-            return applicable.Rate;
-        }
-
-        return RateHistory
-            .OrderBy(r => r.From)
-            .First()
-            .Rate;
+        return applicable?.Rate;
     }
 
     public void ValidateInvariants()

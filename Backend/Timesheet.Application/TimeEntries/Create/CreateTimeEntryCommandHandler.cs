@@ -2,7 +2,6 @@ using MediatR;
 using Timesheet.Application.Common.Errors;
 using Timesheet.Application.Common.Interfaces;
 using Timesheet.Domain;
-using Timesheet.Domain.Common;
 using Timesheet.Domain.TimeEntries;
 
 namespace Timesheet.Application.TimeEntries.Create;
@@ -32,25 +31,15 @@ public sealed class CreateTimeEntryCommandHandler(
 
         var employee = await employeeRepository.GetByIdAsync(
             new EmployeeId(command.EmployeeId),
-            cancellationToken);
-
-        if (employee is null)
-        {
-            throw new BusinessException(
+            cancellationToken) ?? throw new BusinessException(
                 ErrorCodes.EmployeeNotFound,
                 ErrorMessages.EmployeeNotFound);
-        }
 
         var project = await projectRepository.GetByIdAsync(
             new ProjectId(command.ProjectId),
-            cancellationToken);
-
-        if (project is null)
-        {
-            throw new BusinessException(
+            cancellationToken) ?? throw new BusinessException(
                 ErrorCodes.ProjectNotFound,
                 ErrorMessages.ProjectNotFound);
-        }
 
         if (project.StartDate.HasValue && command.Date < project.StartDate.Value)
         {
@@ -66,7 +55,9 @@ public sealed class CreateTimeEntryCommandHandler(
                 ErrorMessages.DateOutsideProjectRange);
         }
 
-        var appliedRate = employee.GetCurrentRate(command.Date);
+        var appliedRate = employee.GetCurrentRate(command.Date) ?? throw new BusinessException(
+                ErrorCodes.MissingRate,
+                ErrorMessages.MissingRate);
         var cost = TimeEntry.CalculateCost(command.Hours, appliedRate);
 
         var sumHours = await timeEntryRepository.SumHoursByEmployeeAndDateAsync(

@@ -2,7 +2,6 @@ using FluentAssertions;
 using MongoDB.Driver;
 using NSubstitute;
 using Timesheet.Domain;
-using Timesheet.Domain.Employees;
 using Timesheet.Infrastructure.MongoDb.Documents;
 using Timesheet.Infrastructure.MongoDb.Repositories;
 

@@ -1,6 +1,5 @@
 using Timesheet.Application.Common.Interfaces;
 using Timesheet.Domain;
-using Timesheet.Domain.Common;
 
 namespace Timesheet.Infrastructure.Maintenance;
 

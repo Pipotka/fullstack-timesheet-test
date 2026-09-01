@@ -4,7 +4,6 @@ using Timesheet.Application.Common.Errors;
 using Timesheet.Application.Common.Interfaces;
 using Timesheet.Application.Employees.ChangeRate;
 using Timesheet.Domain;
-using Timesheet.Domain.Common;
 using Timesheet.Domain.Employees;
 
 namespace Timesheet.Application.Tests.Employees;

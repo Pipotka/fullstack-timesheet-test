@@ -4,7 +4,6 @@ using Timesheet.Application.Common.Interfaces;
 using Timesheet.Application.Common.Models;
 using Timesheet.Application.TimeEntries.List;
 using Timesheet.Domain;
-using Timesheet.Domain.Common;
 using Timesheet.Domain.Employees;
 using Timesheet.Domain.Projects;
 using Timesheet.Domain.TimeEntries;

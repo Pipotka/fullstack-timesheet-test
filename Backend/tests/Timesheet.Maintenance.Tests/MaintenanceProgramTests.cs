@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.Extensions.Configuration;
 
 namespace Timesheet.Maintenance.Tests;
 

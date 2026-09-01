@@ -2,7 +2,6 @@ using MediatR;
 using Timesheet.Application.Common.Errors;
 using Timesheet.Application.Common.Interfaces;
 using Timesheet.Domain;
-using Timesheet.Domain.Common;
 
 namespace Timesheet.Application.TimeEntries.Delete;
 
@@ -17,14 +16,9 @@ public sealed class DeleteTimeEntryCommandHandler(
     {
         var existingEntry = await timeEntryRepository.GetByIdAsync(
             new TimeEntryId(command.Id),
-            cancellationToken);
-
-        if (existingEntry is null)
-        {
-            throw new BusinessException(
+            cancellationToken) ?? throw new BusinessException(
                 ErrorCodes.TimeEntryNotFound,
                 ErrorMessages.TimeEntryNotFound);
-        }
 
         var periodClosure = await periodClosureRepository.GetAsync(
             existingEntry.Date.Year,

@@ -5,7 +5,7 @@ namespace Timesheet.Domain.Tests.Employees;
 
 public sealed class EmployeeTests
 {
-    private static Domain.Employees.Employee CreateEmployee(
+    private static Employee CreateEmployee(
         IReadOnlyList<RateHistoryEntry> history,
         long revision = 1)
         => new()

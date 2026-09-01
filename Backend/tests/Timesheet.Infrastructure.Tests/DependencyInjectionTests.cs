@@ -2,7 +2,6 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
-using Timesheet.Infrastructure;
 
 namespace Timesheet.Infrastructure.Tests;
 

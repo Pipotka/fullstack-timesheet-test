@@ -2,7 +2,6 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Timesheet.Application.Common.Interfaces;
-using Timesheet.Infrastructure;
 using Timesheet.Infrastructure.MongoDb.Indexes;
 
 namespace Timesheet.Infrastructure.Tests;

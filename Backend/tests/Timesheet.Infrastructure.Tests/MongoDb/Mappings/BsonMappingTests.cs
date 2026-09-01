@@ -2,7 +2,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using Timesheet.Infrastructure.MongoDb.DocumentMapping;
 using Timesheet.Infrastructure.MongoDb.Documents;
 using Timesheet.Infrastructure.MongoDb.Mappings;
 

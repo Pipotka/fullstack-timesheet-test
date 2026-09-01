@@ -1,7 +1,7 @@
 namespace Timesheet.Application.Common.Models;
 
 public sealed record ProjectReportResult(
-    Timesheet.Domain.ProjectId ProjectId,
+    Domain.ProjectId ProjectId,
     string ProjectCode,
     string ProjectName,
     decimal Budget,

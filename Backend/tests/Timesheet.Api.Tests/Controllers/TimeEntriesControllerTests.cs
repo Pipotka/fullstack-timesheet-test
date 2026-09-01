@@ -1,4 +1,3 @@
-using System.Text.Json;
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

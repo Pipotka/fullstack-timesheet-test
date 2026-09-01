@@ -2,7 +2,6 @@ using MediatR;
 using Timesheet.Application.Common.Errors;
 using Timesheet.Application.Common.Interfaces;
 using Timesheet.Domain;
-using Timesheet.Domain.Common;
 using Timesheet.Domain.TimeEntries;
 
 namespace Timesheet.Application.TimeEntries.Update;

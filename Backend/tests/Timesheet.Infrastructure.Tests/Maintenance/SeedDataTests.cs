@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NSubstitute;
 using Timesheet.Application.Common.Interfaces;
 using Timesheet.Domain;
